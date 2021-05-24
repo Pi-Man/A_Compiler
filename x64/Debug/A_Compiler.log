@@ -1,0 +1,6 @@
+﻿  main.c
+c:\users\peter\source\repos\a_compiler\a_compiler\main.c(17): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'fpos_t'
+  c:\users\peter\source\repos\a_compiler\a_compiler\main.c(17): note: consider using '%lld' in the format string
+  c:\users\peter\source\repos\a_compiler\a_compiler\main.c(17): note: consider using '%Id' in the format string
+  c:\users\peter\source\repos\a_compiler\a_compiler\main.c(17): note: consider using '%I64d' in the format string
+  A_Compiler.vcxproj -> C:\Users\Peter\source\repos\A_Compiler\x64\Debug\A_Compiler.exe

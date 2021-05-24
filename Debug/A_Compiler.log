@@ -1,0 +1,6 @@
+﻿  lexer.c
+  main.c
+  token.c
+c:\users\peter\source\repos\a_compiler\a_compiler\token.c(4): warning C4013: 'malloc' undefined; assuming extern returning int
+  Generating Code...
+  A_Compiler.vcxproj -> C:\Users\Peter\source\repos\A_Compiler\Debug\A_Compiler.exe
