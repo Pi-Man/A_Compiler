@@ -1,0 +1,124 @@
+{string} = {1:int*?} // unknown length array of chars, probably an error if length can't be determined at compile time also would be in a "standard library"
+{bool} = {4:int} // define bool as regular int, would also be in the "standard library"
+
+{Vector3:N:T} = {x:N:T, y:N:T, z:N:T} // interesting way of using generics I guess that I just came up with.
+{Array:N:T*L} = {N:T*L} // this is completely pointless other than to show my idea for "*" which is to specify a number of consecuative elements of the same size, in other words an L length array of type N:T, also can be used in a generic form
+
+{Point3:N:T} = {Vector3:N:T} // basically just a alias or "typedef" in C
+
+{16:float} = {8:float, 8:float} // not sure if I want this to be valid or not, as 1) there is no type name, 2) would require making sure that the final size of the struct is correct at compile time
+
+4:float dot (Vector3:4:float a, b:{x:4:float, y:4:float, z:4:float}); // declair without definition just because hoisting seems difficult also shows the two different ways to define variable with type again
+
+operators(); // i'm too lazy to declair operators up here so I'm using this to avoid that atm, but also not this has no return type defined, not even void.  void is likely to be default if there is no return type declaired, though "void" might just not exist at all.
+pointers(); /c same deal as test(), avoids having to declair pointer stuff up here
+
+4:int entry(argc:4:int, args:8:int) { // not really sure why "entry" instead of "main", just kind of makes more sense to me, also note, argc is count and args is pointer, but are both "int" because memory addresses are of operator type "int", might alias "ptr" to "int" to make it easier to see if something is a pointer though
+  string s = "Hello World!"; // interesting to note that as of right now structs are declaired differently than primitives
+  s:string = "Hello World!"; // might also be a valid aproach now that i've considered a form of generics
+  println(s); // place holder printing function, not much so say here
+  a:Vector3:4:float = {0.0, 1.6, 6.3}; // hmm, I may not allow declaration like this, seems like too many ":" now
+  Point3:4:float b = {5.2, 1.6, 1.0} // the other way of declaring that I think looks cleaner
+  4:float f = dot(b, a); // note dot never said it would accept Point3, but because it's the same size as Vector3 it would accept, though maybe with a warning or error if the internal types didn't match.  also same situation with the second argument
+  test();
+  return 0;
+}
+
+4:float dot (Vector3:4:float a, b:{x:4:float, y:4:float, z:4:float}) { // having anonymous type after variable names looks better to me than before variable name like defined type is in this case
+  return a.x*b.x + a.y*b.y + a.z*b.z;
+  return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]; // also would be valid, though obviouosly won't be run because the function already returned
+}
+
+
+
+// operator ideas!
+
+/m (new comment idea for multiline comments, m for multi, and regular comment will probably be changed to /c, c for comment)
+still a comment 
+anyways idea for operator declaration structure
+return_type operator_keyword operator_name (arguments) {body}
+m/ // end of multiline comment
+
+/c example operator (dot product)
+4:float operator (Vector3:4:float a) * (Vector:4:float b) { /c ok I know this is weird, but here me out, operators take arguments on both sides of the operator name, so in defining the operator the same thing should be done imo, this also allows easy distinguising of left hand unary operators and right hand unary operators
+  return a.x*b.x + a.y*b.y + a.z*b.z;
+}
+
+/c another example (cross product)
+Vector3:4:float operator (Vector3:4:float a) x (Vector:4:float b) {
+  return {a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x};
+}
+
+/c more crazy operator ideas
+<size N, op_type T> /c defining N and T as generics for this function
+N:T operator (N:T a) inc { /c note "inc" comes after "(N:T a)" meaning that it's used in the form "a inc" not "inc a"
+  return a + 1;
+}
+
+4:int operator (4:int a, 4:int b) add { /c even crazier than before this would be used as "(a, b)add" *might* allow not using parentheses but probably will require them
+  return a + b;
+}
+
+/c and finally "methods" not truely methods as they won't be designed to be members of the struct, but they will appear to be
+
+Vector3:4:float operator (Vector3:4:float this).rotateMembers {/c note that the operator name starts with "." and that the left hand argument is "this" (not necessary to call it "this" though)  the method then would be used like so "vector.rotateMembers" the "." isn't actually member access but just a part of the operator name to make it look like member access, could very easily have been "vector rotateMembers" instead
+  return {this.y, this.z, this.z};
+}
+
+Vector3:4:float operator (Vector3:4:float this).lerp (Vector3:4:float other, 4:float k) { /c in case it wasn't clear this is also possible
+  return /c i'm too lazy to actually right this out atm
+}
+
+/c ok if you though I couldn't get an crazier I feel sorry for you lol.  next up is ternary operators laying to ground work for n-ary operators
+
+<type T> /c ok, so unlike last time where I had "size" and "op_type", I got tired of that and packaged it all into just "type"
+T operator (bool condition) ? (T true_statment) : (T false_statement) { /c defining ternary operator in the standard library.  this also allows for using just about as many chained operator symbols as you want allowing for some absolutely crazy operators like "a @ b # c $ d" where "a" "b" "c" and "d" are all variables and "@" "#" and "$" are all defined as one single operator
+  if (condition) return true_statement;
+  else return false_statement;
+}
+
+{DefaultVector} = {Vector3:4:f = {0.0, 0.0, 1.0}} /c shows use of user defined default values, default default values will be 0
+
+operators()  {
+  DefaultVector a;
+  Vector3:4:float b = {0.0, 1.0, 0.0};
+  println(a * b); /c again placeholder print function, will likely print structs in the form "{value1, value2, value3...}" which could result in something like println(plane) -> "{0.2, {0.4, 1.5, 0.0}}"  (distance and direction to define plane), in the case of this line will print "0.0"
+  println(a x b); /c "x" is not normally an operator, however since we defined it as an operator we can use it as an operator, this line will print "{1.0, 0.0, 0.0}"
+  4:int i = 9;
+  i = i inc; /c i is now 10, "inc" operates on the "i" behind it (the assignment is necessary for now as I haven't figured out how I want to do pass by reference yet)
+  println(a.rotateMembers * b); /c this is intended to print "1.0" as it will rotate then do dot product, howerver this brings up a very important point of how do I do operator precidence.  well in this case it doesn't matter, but for "b x a.rotateMembers" the result would be ambiguous.  I would like to define precidence as an integer on the operator definition, but not entirely sure where to put that.  this would also add a "precidence(operator)" function to get the precidence of an operator.  Default precidence would likely be int max
+  println((1, 2)add); /c prints "3"
+}
+
+
+/c pointers
+
+{ptr} = {8:int = 0} /c likely will be defined in standard library, the "= 0" probably won't be necessary, but it explicitly shows that it's 0 (or null) by default
+
+NULL:ptr = 0 /c standard null definition (again standard library), (also could be defined as ptr NULL = 0)
+
+{Some_Struct} = {
+  4:int a = 10,
+  4:float b = 0.5
+}
+
+pointers() {
+  ptr a;
+  some_int:4:int = 7;
+  another_int:4:int = 10;
+  a = addr(some_int); /c i'd rather this be an operator, but i'm not sure what to use
+  a = [some_int]; /c could be an alternative
+  a++; /c increment the pointer, because pointers don't know their containing type this always incrememnts by one byte
+  a += 3; /c finish incrementing past the original int
+  println(4:int(a)); /c print the value that a now points to, again I would like the dereferencing to be an operator, but it also needs to accept a type because the pointer doesn't know the type to dereference to.  also like with C this is undefined behavior though it is likely to print "10".  however, if the two ints were packaged into a struct this would no longer be undefined behavior and would guarentee printing "10"
+  a = reserve(8); /c until now all allocation has been on stack, this is my plan for heap allocoation and is basically the equivalent of malloc.  like malloc this will probably not set the data to 0 after reserving it, the default value should explicitly be assigned by the programmer instead.  this is important because reserve will just grab a fixed size of heap to use without knowing what it's being used for and so doesn't know what the default values should be.
+  a <- 8:float(5.0); /c assigning to a pointer, this isn't "=" because that would be assigning to the pointer value, instead we want to assign to the value pointed to by the pointer, this also shows using types as conversion functions wich is likely what pointer dereferencing is going to be too
+  <8:float a> = 5.0; /c new idea for pointer dereference
+  <a:8:float> = 5.0; /c should also be possible I guess, though I'm not a big fan of this, but I suppose it's fine
+  ptr b = reserve(sizeof(Some_Struct)) /c use of sizeof to avoid having to calculate size by hand
+  b <- Some_Struct /c ummm, not actually sure how to go about getting a default value from this tbh. I don't really want to make it look like a function or constructor though, so I guess I'll leave it at this
+  println(Some_Struct(b)); /c will print "{10, 0.5}".  come to think of it I may also want to print member names, not sure on that
+  8:float f = 8:float(b); /c again, because the pointer has no notion of what type it is, this just works
+  4:int i = 4:int(b); /c i is now 10
+  4:float j = 4:float(b + 4); /c j is now 0.5, the address of b was shifted over 4 bytes to get to the float member and that was dereferenced to j to get 0.5.  I really want this to be defined behavior, but i'm worried about data allignment so I might not be able to make this defined behavior.
+}

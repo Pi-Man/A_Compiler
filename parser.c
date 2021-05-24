@@ -28,6 +28,8 @@ PDeclaration parseDeclaration() {
 				switch (NEXT.type) {
 				case SEMI_COLON:
 					return declaration;
+				case EQUALS:
+
 				default:
 					break;
 				}
